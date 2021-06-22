@@ -1,24 +1,24 @@
-/**
- * @param {string} code
- */
-export function Brainfuck(code) {
-  this._brainfuckSource = code
-}
+export class Brainfuck {
+  /**
+   * @param {string} code
+   */
+  constructor(code) {
+    this._brainfuckSource = code
+  }
 
-Brainfuck.prototype = {
   /**
    * @param {string} input
    * @param {boolean} [optimized]
    */
-  exec: function (input, optimized) {
+  exec(input, optimized) {
     return this.returnFunction(optimized)(input)
-  },
+  }
 
   /**
    * @param {boolean} [optimized]
    * @returns {(input: string) => string}
    */
-  returnFunction: function (optimized = true) {
+  returnFunction(optimized = true) {
     let code = this.cleanSource()
     let func = new Function(
       'mem',
@@ -28,14 +28,14 @@ Brainfuck.prototype = {
     let maxArrayLength = 30000
 
     return func.bind(null, new Uint8Array(maxArrayLength))
-  },
+  }
 
   /**
    * @param {string} code
    * @param {boolean} optimized
    * @returns {string}
    */
-  _generateJSSource: function (code, optimized) {
+  _generateJSSource(code, optimized) {
     let codeLength = code.length
     let JSSource = 'let index = 0, output = "", inputIndex = 0;'
 
@@ -50,7 +50,7 @@ Brainfuck.prototype = {
     JSSource += 'return output;'
 
     return JSSource
-  },
+  }
 
   /**
    * this method reduces array index access dramatically! ;)
@@ -58,7 +58,7 @@ Brainfuck.prototype = {
    * @param {string} code
    * @returns {string}
    */
-  _optimizeCode: function (code) {
+  _optimizeCode(code) {
     let optimizedCode = ''
     let codeLength = code.length
 
@@ -84,14 +84,14 @@ Brainfuck.prototype = {
     }
 
     return optimizedCode
-  },
+  }
 
   /**
    * @param {string} instruction
    * @param {number} [count]
    * @returns {string}
    */
-  _interpretOptimizedInstruction: function (instruction, count) {
+  _interpretOptimizedInstruction(instruction, count) {
     switch (instruction) {
       case '+':
         return `mem[index] += ${count};\n`
@@ -106,13 +106,13 @@ Brainfuck.prototype = {
       default:
         return ''
     }
-  },
+  }
 
   /**
    * @param {string} instruction
    * @returns {string}
    */
-  _interpretInstruction: function (instruction) {
+  _interpretInstruction(instruction) {
     switch (instruction) {
       case '+':
         return '++mem[index];\n'
@@ -138,19 +138,19 @@ Brainfuck.prototype = {
         //console.log('Invalid character found: %s', instruction);
         return ''
     }
-  },
+  }
 
   /**
    * @returns {string}
    */
-  cleanSource: function () {
+  cleanSource() {
     return this._brainfuckSource.replace(/[^\+\-\[\]\.\,<>#\*]/g, '')
-  },
+  }
 
   /**
    * @returns {string}
    */
-  getSource: function () {
+  getSource() {
     return this._brainfuckSource
-  },
+  }
 }
