@@ -4,5 +4,11 @@
   "repository": "git@github.com:topaxi/jsbf.git",
   "author": "Damian Senn <damian.senn@topaxi.codes>",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "scripts": {
+    "start": "npx parcel src/index.html"
+  },
+  "devDependencies": {
+    "parcel": "2.0.0-beta.3.1"
+  }
 }
