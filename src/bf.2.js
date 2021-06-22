@@ -17,7 +17,7 @@ Brainfuck.prototype = {
     )
     let maxArrayLength = 30000
 
-    return func.bind(null, Array(maxArrayLength).fill(0))
+    return func.bind(null, new Uint8Array(maxArrayLength))
   },
   _generateJSSource: function (code, optimized) {
     let codeLength = code.length
