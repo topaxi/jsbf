@@ -1,150 +1,135 @@
-var ASCII2Brainfuck = (function () {
-  function ASCII2Brainfuck(s) {
-    var stringLength = s.length,
-      output = '',
-      prevCharCode = 0,
-      cachedChars
+export function ASCII2Brainfuck(s) {
+  var stringLength = s.length,
+    output = '',
+    prevCharCode = 0,
+    cachedChars
 
-    var [output, cachedChars] = cacheChars(s, stringLength)
+  var [output, cachedChars] = cacheChars(s, stringLength)
 
-    for (var i = 0; i < stringLength; i++) {
-      var charCode = s.charCodeAt(i),
-        nextChar1 = '',
-        nextChar2 = ''
+  for (var i = 0; i < stringLength; i++) {
+    var charCode = s.charCodeAt(i),
+      nextChar1 = '',
+      nextChar2 = ''
 
-      if (charCode in cachedChars) {
-        var level = cachedChars[charCode]
+    if (charCode in cachedChars) {
+      var level = cachedChars[charCode]
 
-        nextChar2 += mchar('<', level) + '.' + mchar('>', level)
-      }
-
-      nextChar1 += add(charCode - prevCharCode, 1) + '.'
-
-      if (nextChar2 && nextChar2.length < nextChar1.length) {
-        output += nextChar2
-      } else {
-        output += nextChar1
-
-        prevCharCode = charCode
-      }
+      nextChar2 += mchar('<', level) + '.' + mchar('>', level)
     }
 
-    var clean = /(?:<>|><)/g // remove unnecessary pointer shifts
-    while (output.match(clean)) output = output.replace(clean, '')
+    nextChar1 += add(charCode - prevCharCode, 1) + '.'
 
-    return output.replace(/[^\.]+$/, '')
-  }
+    if (nextChar2 && nextChar2.length < nextChar1.length) {
+      output += nextChar2
+    } else {
+      output += nextChar1
 
-  function cacheChars(s, stringLength) {
-    var charsToCache = mostUsedChars(s, stringLength),
-      output = '',
-      cache = {}
-
-    for (var i = charsToCache.length; i--; ) {
-      var charToCache = charsToCache[i]
-
-      cache[charToCache] = i + 1
-      output += add(charToCache, 1) + '>'
+      prevCharCode = charCode
     }
-
-    return [output, cache]
   }
 
-  function mostUsedChars(s, stringLength) {
-    var chars = {},
-      toCache = []
+  var clean = /(?:<>|><)/g // remove unnecessary pointer shifts
+  while (output.match(clean)) output = output.replace(clean, '')
 
-    for (var i = 0; i < stringLength; i++) {
-      var charCode = s.charCodeAt(i)
-      chars[charCode] = (chars[charCode] >>> 0) + 1
-    }
+  return output.replace(/[^\.]+$/, '')
+}
 
-    // do not cache chars which are not used frequently
-    for (var charCount = chars.length; charCount--; ) {
-      if (chars[charCount] < 3) delete chars[charCount]
-    }
+function cacheChars(s, stringLength) {
+  var charsToCache = mostUsedChars(s, stringLength),
+    output = '',
+    cache = {}
 
-    for (var i = 20; i--; ) {
-      toCache.push(max(chars))
-    }
+  for (var i = charsToCache.length; i--; ) {
+    var charToCache = charsToCache[i]
 
-    return toCache
+    cache[charToCache] = i + 1
+    output += add(charToCache, 1) + '>'
   }
 
-  function max(o) {
-    var h = 0,
-      i
-    for (i in o) {
-      o[h] = o[h] >>> 0
-      if (o[i] > o[h]) h = i
-    }
+  return [output, cache]
+}
 
-    delete o[h]
+function mostUsedChars(s, stringLength) {
+  var chars = {},
+    toCache = []
 
-    return h
+  for (var i = 0; i < stringLength; i++) {
+    var charCode = s.charCodeAt(i)
+    chars[charCode] = (chars[charCode] >>> 0) + 1
   }
 
-  function add(i, level) {
-    if (!i) return ''
-
-    var l = Math.abs(i)
-
-    if (l < 15) return mchar(i < 0 ? '-' : '+', l)
-
-    var f = getFactors(l),
-      fLength = f.length
-
-    if (!fLength) return add(i - 1, level) + '+' // catch prime number
-
-    var v1 = ~~(fLength / 2),
-      v2 = fLength % 2 ? v1 : v1 - 1
-
-    return valueByMultiply(f[v1], i < 0 ? -f[v2] : f[v2], level)
+  // do not cache chars which are not used frequently
+  for (var charCount = chars.length; charCount--; ) {
+    if (chars[charCount] < 3) delete chars[charCount]
   }
 
-  function valueByMultiply(a, b, level) {
-    var fSeek = mchar('>', level),
-      bSeek = mchar('<', level)
-
-    return (
-      fSeek +
-      add(a, level + 1) +
-      '[' +
-      bSeek +
-      add(b, level + 1) +
-      fSeek +
-      (a > 0 ? '-' : '+') +
-      ']' +
-      bSeek
-    )
+  for (var i = 20; i--; ) {
+    toCache.push(max(chars))
   }
 
-  function mchar(c, i) {
-    var o = ''
-    while (i--) o += c
-    return o
+  return toCache
+}
+
+function max(o) {
+  var h = 0,
+    i
+  for (i in o) {
+    o[h] = o[h] >>> 0
+    if (o[i] > o[h]) h = i
   }
 
-  function getFactors(v) {
-    var i = v,
-      f = []
+  delete o[h]
 
-    while (--i) if (!(v % i)) f.push(i)
+  return h
+}
 
-    f.pop() // every number is divisible by 1, we do not want it
-    return f
-  }
+function add(i, level) {
+  if (!i) return ''
 
-  return ASCII2Brainfuck
-})()
+  var l = Math.abs(i)
 
-;(function () {
-  var exec = document.getElementById('a2b')
+  if (l < 15) return mchar(i < 0 ? '-' : '+', l)
 
-  var a2b = document.getElementById('ascii')
-  var bf = document.getElementById('bf')
+  var f = getFactors(l),
+    fLength = f.length
 
-  exec.onclick = function () {
-    bf.value = ASCII2Brainfuck(a2b.value)
-  }
-})()
+  if (!fLength) return add(i - 1, level) + '+' // catch prime number
+
+  var v1 = ~~(fLength / 2),
+    v2 = fLength % 2 ? v1 : v1 - 1
+
+  return valueByMultiply(f[v1], i < 0 ? -f[v2] : f[v2], level)
+}
+
+function valueByMultiply(a, b, level) {
+  var fSeek = mchar('>', level),
+    bSeek = mchar('<', level)
+
+  return (
+    fSeek +
+    add(a, level + 1) +
+    '[' +
+    bSeek +
+    add(b, level + 1) +
+    fSeek +
+    (a > 0 ? '-' : '+') +
+    ']' +
+    bSeek
+  )
+}
+
+function mchar(c, i) {
+  var o = ''
+  while (i--) o += c
+  return o
+}
+
+function getFactors(v) {
+  var i = v,
+    f = []
+
+  while (--i) if (!(v % i)) f.push(i)
+
+  f.pop() // every number is divisible by 1, we do not want it
+  return f
+}
