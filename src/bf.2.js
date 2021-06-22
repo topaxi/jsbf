@@ -66,13 +66,13 @@ Brainfuck.prototype = {
   _interpretOptimizedInstruction: function (instruction, count) {
     switch (instruction) {
       case '+':
-        return 'mem[index] += ' + count + ';\n'
+        return `mem[index] += ${count};\n`
       case '-':
-        return 'mem[index] -= ' + count + ';\n'
+        return `mem[index] -= ${count};\n`
       case '<':
-        return 'index -= ' + count + ';\n'
+        return `index -= ${count};\n`
       case '>':
-        return 'index += ' + count + ';\n'
+        return `index += ${count};\n`
       case '0':
         return 'mem[index] = 0;\n'
       default:
