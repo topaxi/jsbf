@@ -16,7 +16,7 @@ export function ASCII2Brainfuck(s) {
     if (charCode in cachedChars) {
       let level = cachedChars[charCode]
 
-      nextChar2 += mchar('<', level) + '.' + mchar('>', level)
+      nextChar2 += '<'.repeat(level) + '.' + '>'.repeat(level)
     }
 
     nextChar1 += add(charCode - prevCharCode, 1) + '.'
@@ -115,7 +115,7 @@ function add(i, level) {
 
   let l = Math.abs(i)
 
-  if (l < 15) return mchar(i < 0 ? '-' : '+', l)
+  if (l < 15) return (i < 0 ? '-' : '+').repeat(l)
 
   let f = getFactors(l)
   let fLength = f.length
@@ -135,8 +135,8 @@ function add(i, level) {
  * @returns {string}
  */
 function valueByMultiply(a, b, level) {
-  let fSeek = mchar('>', level)
-  let bSeek = mchar('<', level)
+  let fSeek = '>'.repeat(level)
+  let bSeek = '<'.repeat(level)
 
   return (
     fSeek +
@@ -149,17 +149,6 @@ function valueByMultiply(a, b, level) {
     ']' +
     bSeek
   )
-}
-
-/**
- * @param {string} c
- * @param {number} i
- * @returns {string}
- */
-function mchar(c, i) {
-  let o = ''
-  while (i--) o += c
-  return o
 }
 
 /**
