@@ -1,0 +1,8 @@
+{
+  "name": "jsbf",
+  "version": "1.0.0",
+  "repository": "git@github.com:topaxi/jsbf.git",
+  "author": "Damian Senn <damian.senn@topaxi.codes>",
+  "license": "MIT",
+  "private": true
+}
