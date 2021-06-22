@@ -1,3 +1,7 @@
+/**
+ * @param {string} s
+ * @returns {string}
+ */
 export function ASCII2Brainfuck(s) {
   let stringLength = s.length
   let prevCharCode = 0
@@ -32,9 +36,17 @@ export function ASCII2Brainfuck(s) {
   return output.replace(/[^\.]+$/, '')
 }
 
+/**
+ * @param {string} s
+ * @param {number} stringLength
+ * @returns {[string, Record<number, number>]}
+ */
 function cacheChars(s, stringLength) {
   let charsToCache = mostUsedChars(s, stringLength)
   let output = ''
+  /**
+   * @type {Record<number, number>}
+   */
   let cache = {}
 
   for (let i = charsToCache.length; i--; ) {
@@ -47,7 +59,15 @@ function cacheChars(s, stringLength) {
   return [output, cache]
 }
 
+/**
+ * @param {string} s
+ * @param {number} stringLength
+ * @returns {number[]}
+ */
 function mostUsedChars(s, stringLength) {
+  /**
+   * @type {Record<string, number>}
+   */
   let chars = {}
   let toCache = []
 
@@ -68,6 +88,10 @@ function mostUsedChars(s, stringLength) {
   return toCache
 }
 
+/**
+ * @param {Record<string, number>} o
+ * @returns {number}
+ */
 function max(o) {
   let h = '0'
 
@@ -78,9 +102,14 @@ function max(o) {
 
   delete o[h]
 
-  return h
+  return Number(h)
 }
 
+/**
+ * @param {number} i
+ * @param {number} level
+ * @returns {string}
+ */
 function add(i, level) {
   if (!i) return ''
 
@@ -99,6 +128,12 @@ function add(i, level) {
   return valueByMultiply(f[v1], i < 0 ? -f[v2] : f[v2], level)
 }
 
+/**
+ * @param {number} a
+ * @param {number} b
+ * @param {number} level
+ * @returns {string}
+ */
 function valueByMultiply(a, b, level) {
   let fSeek = mchar('>', level)
   let bSeek = mchar('<', level)
@@ -116,12 +151,21 @@ function valueByMultiply(a, b, level) {
   )
 }
 
+/**
+ * @param {string} c
+ * @param {number} i
+ * @returns {string}
+ */
 function mchar(c, i) {
   let o = ''
   while (i--) o += c
   return o
 }
 
+/**
+ * @param {number} v
+ * @returns {number[]}
+ */
 function getFactors(v) {
   let i = v
   let f = []

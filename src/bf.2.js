@@ -1,14 +1,24 @@
+/**
+ * @param {string} code
+ */
 export function Brainfuck(code) {
   this._brainfuckSource = code
 }
 
 Brainfuck.prototype = {
+  /**
+   * @param {string} input
+   * @param {boolean} [optimized]
+   */
   exec: function (input, optimized) {
     return this.returnFunction(optimized)(input)
   },
-  returnFunction: function (optimized) {
-    optimized = optimized === undefined ? true : optimized
 
+  /**
+   * @param {boolean} [optimized]
+   * @returns {(input: string) => string}
+   */
+  returnFunction: function (optimized = true) {
     let code = this.cleanSource()
     let func = new Function(
       'mem',
@@ -19,6 +29,12 @@ Brainfuck.prototype = {
 
     return func.bind(null, new Uint8Array(maxArrayLength))
   },
+
+  /**
+   * @param {string} code
+   * @param {boolean} optimized
+   * @returns {string}
+   */
   _generateJSSource: function (code, optimized) {
     let codeLength = code.length
     let JSSource = 'let index = 0, output = "", inputIndex = 0;'
@@ -35,7 +51,13 @@ Brainfuck.prototype = {
 
     return JSSource
   },
-  /* this method reduces array index access dramatically! ;) */
+
+  /**
+   * this method reduces array index access dramatically! ;)
+   *
+   * @param {string} code
+   * @returns {string}
+   */
   _optimizeCode: function (code) {
     let optimizedCode = ''
     let codeLength = code.length
@@ -63,6 +85,12 @@ Brainfuck.prototype = {
 
     return optimizedCode
   },
+
+  /**
+   * @param {string} instruction
+   * @param {number} [count]
+   * @returns {string}
+   */
   _interpretOptimizedInstruction: function (instruction, count) {
     switch (instruction) {
       case '+':
@@ -79,6 +107,11 @@ Brainfuck.prototype = {
         return ''
     }
   },
+
+  /**
+   * @param {string} instruction
+   * @returns {string}
+   */
   _interpretInstruction: function (instruction) {
     switch (instruction) {
       case '+':
@@ -106,9 +139,17 @@ Brainfuck.prototype = {
         return ''
     }
   },
+
+  /**
+   * @returns {string}
+   */
   cleanSource: function () {
     return this._brainfuckSource.replace(/[^\+\-\[\]\.\,<>#\*]/g, '')
   },
+
+  /**
+   * @returns {string}
+   */
   getSource: function () {
     return this._brainfuckSource
   },
