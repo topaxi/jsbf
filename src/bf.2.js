@@ -10,22 +10,18 @@ Brainfuck.prototype = {
     optimized = optimized === undefined ? true : optimized
 
     let code = this.cleanSource()
-    let func = new Function('input', this._generateJSSource(code, optimized))
+    let func = new Function(
+      'mem',
+      'input',
+      this._generateJSSource(code, optimized)
+    )
+    let maxArrayLength = 30000
 
-    return func
+    return func.bind(null, Array(maxArrayLength).fill(0))
   },
   _generateJSSource: function (code, optimized) {
     let codeLength = code.length
-    let maxArrayLength = 30000
-    let JSSource =
-      'let index = 0,\n    mem = [' +
-      (function (maxArrayLength) {
-        let s = []
-        for (let i = maxArrayLength; i--; s[i] = 0);
-
-        return s.join(',')
-      })(maxArrayLength) +
-      '],\n    output = "",\n    inputIndex = 0;\n'
+    let JSSource = 'let index = 0, output = "", inputIndex = 0;'
 
     if (!optimized) {
       for (let i = 0; i < codeLength; i++) {
