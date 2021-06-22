@@ -1,145 +1,150 @@
-var ASCII2Brainfuck = (function(){
-	function ASCII2Brainfuck(s){
-		var stringLength = s.length,
-		    output       = "",
-		    prevCharCode = 0,
-		    cachedChars;
+var ASCII2Brainfuck = (function () {
+  function ASCII2Brainfuck(s) {
+    var stringLength = s.length,
+      output = '',
+      prevCharCode = 0,
+      cachedChars
 
-		//[output, cachedChars] = cacheChars(s, stringLength);
-		var pl = cacheChars(s, stringLength);
-		output      = pl[0];
-		cachedChars = pl[1];
+    var [output, cachedChars] = cacheChars(s, stringLength)
 
-		for(var i = 0; i < stringLength; i++){
-			var charCode  = s.charCodeAt(i),
-			    nextChar1 = '',
-			    nextChar2 = '';
-			
-			if(charCode in cachedChars){
-				var level = cachedChars[charCode];
+    for (var i = 0; i < stringLength; i++) {
+      var charCode = s.charCodeAt(i),
+        nextChar1 = '',
+        nextChar2 = ''
 
-				nextChar2 += mchar('<', level) + '.' + mchar('>', level);
-			}
-			
-			nextChar1 += add(charCode - prevCharCode, 1) + ".";
+      if (charCode in cachedChars) {
+        var level = cachedChars[charCode]
 
-			if(nextChar2 && nextChar2.length < nextChar1.length){
-				output += nextChar2;
-			}
-			else {
-				output += nextChar1;
-				
-				prevCharCode = charCode;
-			}
-		}
+        nextChar2 += mchar('<', level) + '.' + mchar('>', level)
+      }
 
-		var clean = /(?:<>|><)/g; // remove unnecessary pointer shifts
-		while(output.match(clean)) output = output.replace(clean, '');
+      nextChar1 += add(charCode - prevCharCode, 1) + '.'
 
-		return output.replace(/[^\.]+$/, '');
-	}
+      if (nextChar2 && nextChar2.length < nextChar1.length) {
+        output += nextChar2
+      } else {
+        output += nextChar1
 
-	function cacheChars(s, stringLength){
-		var charsToCache = mostUsedChars(s, stringLength),
-		    output       = '',
-		    cache        = {};
+        prevCharCode = charCode
+      }
+    }
 
-		for(var i = charsToCache.length; i--;){
-			var charToCache = charsToCache[i];
+    var clean = /(?:<>|><)/g // remove unnecessary pointer shifts
+    while (output.match(clean)) output = output.replace(clean, '')
 
-			cache[charToCache] = i+1;
-			output += add(charToCache, 1) + '>';
-		}
+    return output.replace(/[^\.]+$/, '')
+  }
 
-		return [output, cache];
-	}
+  function cacheChars(s, stringLength) {
+    var charsToCache = mostUsedChars(s, stringLength),
+      output = '',
+      cache = {}
 
-	function mostUsedChars(s, stringLength){
-		var chars = {}, toCache = [];
+    for (var i = charsToCache.length; i--; ) {
+      var charToCache = charsToCache[i]
 
-		for(var i = 0; i < stringLength; i++){
-			var charCode = s.charCodeAt(i);
-			chars[charCode] = (chars[charCode] >>> 0) + 1;
-		}
-		
-		// do not cache chars which are not used frequently
-		for(var charCount = chars.length; charCount--;){
-			if(chars[charCount] < 3) delete chars[charCount];
-		}
+      cache[charToCache] = i + 1
+      output += add(charToCache, 1) + '>'
+    }
 
-		for(var i = 20;i--;){
-			toCache.push(max(chars));
-		}
+    return [output, cache]
+  }
 
-		return toCache;
-	}
+  function mostUsedChars(s, stringLength) {
+    var chars = {},
+      toCache = []
 
-	function max(o){
-		var h = 0, i;
-		for(i in o){
-			o[h] = o[h] >>> 0;
-			if(o[i] > o[h]) h = i;
-		}
+    for (var i = 0; i < stringLength; i++) {
+      var charCode = s.charCodeAt(i)
+      chars[charCode] = (chars[charCode] >>> 0) + 1
+    }
 
-		delete o[h];
+    // do not cache chars which are not used frequently
+    for (var charCount = chars.length; charCount--; ) {
+      if (chars[charCount] < 3) delete chars[charCount]
+    }
 
-		return h;
-	}
+    for (var i = 20; i--; ) {
+      toCache.push(max(chars))
+    }
 
-	function add(i, level){
-		if(!i) return "";
+    return toCache
+  }
 
-		var l = Math.abs(i);
+  function max(o) {
+    var h = 0,
+      i
+    for (i in o) {
+      o[h] = o[h] >>> 0
+      if (o[i] > o[h]) h = i
+    }
 
-		if(l < 15) return mchar(i < 0 ? "-" : "+", l);
+    delete o[h]
 
-		var f = getFactors(l), fLength = f.length;
+    return h
+  }
 
-		if(!fLength) return add(i-1, level) + "+"; // catch prime number
+  function add(i, level) {
+    if (!i) return ''
 
-		var v1 = ~~(fLength / 2),
-		    v2 = fLength % 2 ? v1 : v1 - 1;
+    var l = Math.abs(i)
 
-		return valueByMultiply(f[v1], i < 0 ? -f[v2] : f[v2], level);
-	}
+    if (l < 15) return mchar(i < 0 ? '-' : '+', l)
 
-	function valueByMultiply(a, b, level){
-		var fSeek = mchar(">", level),
-		    bSeek = mchar("<", level);
+    var f = getFactors(l),
+      fLength = f.length
 
-		return fSeek + add(a, level + 1) + "["
-				+ bSeek
-				+ add(b, level + 1)
-				+ fSeek
-				+ (a > 0 ? "-" : "+")
-			+ "]" + bSeek;
-	}
+    if (!fLength) return add(i - 1, level) + '+' // catch prime number
 
-	function mchar(c, i){
-		var o = '';
-		while(i--) o += c;
-		return o;
-	}
+    var v1 = ~~(fLength / 2),
+      v2 = fLength % 2 ? v1 : v1 - 1
 
-	function getFactors(v){
-		var i = v, f = [];
+    return valueByMultiply(f[v1], i < 0 ? -f[v2] : f[v2], level)
+  }
 
-		while(--i) if(!(v % i)) f.push(i);
+  function valueByMultiply(a, b, level) {
+    var fSeek = mchar('>', level),
+      bSeek = mchar('<', level)
 
-		f.pop(); // every number is divisible by 1, we do not want it
-		return f;
-	}
+    return (
+      fSeek +
+      add(a, level + 1) +
+      '[' +
+      bSeek +
+      add(b, level + 1) +
+      fSeek +
+      (a > 0 ? '-' : '+') +
+      ']' +
+      bSeek
+    )
+  }
 
-	return ASCII2Brainfuck;
-})();
+  function mchar(c, i) {
+    var o = ''
+    while (i--) o += c
+    return o
+  }
 
-(function(){
-	var exec = document.getElementById('a2b');
+  function getFactors(v) {
+    var i = v,
+      f = []
 
-	var a2b = document.getElementById('ascii');
-	var bf  = document.getElementById('bf');
-	
-	exec.onclick = function(){
-		bf.value = ASCII2Brainfuck(a2b.value);
-	};
-})();
+    while (--i) if (!(v % i)) f.push(i)
+
+    f.pop() // every number is divisible by 1, we do not want it
+    return f
+  }
+
+  return ASCII2Brainfuck
+})()
+
+;(function () {
+  var exec = document.getElementById('a2b')
+
+  var a2b = document.getElementById('ascii')
+  var bf = document.getElementById('bf')
+
+  exec.onclick = function () {
+    bf.value = ASCII2Brainfuck(a2b.value)
+  }
+})()
