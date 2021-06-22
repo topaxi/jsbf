@@ -19,15 +19,13 @@ export class Brainfuck {
    * @returns {(input: string) => string}
    */
   returnFunction(optimized = true) {
-    let code = this.cleanSource()
     let func = new Function(
       'mem',
       'input',
-      this._generateJSSource(code, optimized)
+      this._generateJSSource(this.cleanSource(), optimized)
     )
-    let maxArrayLength = 30000
 
-    return func.bind(null, new Uint8Array(maxArrayLength))
+    return (input) => func(new Uint8Array(30000), input)
   }
 
   /**
