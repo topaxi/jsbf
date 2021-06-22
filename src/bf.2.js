@@ -1,37 +1,34 @@
 export function Brainfuck(code) {
-  this._init(code)
+  this._brainfuckSource = code
 }
 
 Brainfuck.prototype = {
-  _init: function (code) {
-    this._brainfuckSource = code
-  },
   exec: function (input, optimized) {
     return this.returnFunction(optimized)(input)
   },
   returnFunction: function (optimized) {
     optimized = optimized === undefined ? true : optimized
 
-    var code = this.cleanSource(),
-      func = new Function('input', this._generateJSSource(code, optimized))
+    let code = this.cleanSource()
+    let func = new Function('input', this._generateJSSource(code, optimized))
 
     return func
   },
   _generateJSSource: function (code, optimized) {
-    var codeLength = code.length,
-      maxArrayLength = 30000,
-      JSSource =
-        'var index = 0,\n    mem = [' +
-        (function (maxArrayLength) {
-          var s = []
-          for (var i = maxArrayLength; i--; s[i] = 0);
+    let codeLength = code.length
+    let maxArrayLength = 30000
+    let JSSource =
+      'let index = 0,\n    mem = [' +
+      (function (maxArrayLength) {
+        let s = []
+        for (let i = maxArrayLength; i--; s[i] = 0);
 
-          return s.join(',')
-        })(maxArrayLength) +
-        '],\n    output = "",\n    inputIndex = 0;\n'
+        return s.join(',')
+      })(maxArrayLength) +
+      '],\n    output = "",\n    inputIndex = 0;\n'
 
     if (!optimized) {
-      for (var i = 0; i < codeLength; i++) {
+      for (let i = 0; i < codeLength; i++) {
         JSSource += this._interpretInstruction(code[i])
       }
     } else {
@@ -44,13 +41,13 @@ Brainfuck.prototype = {
   },
   /* this method reduces array index access dramatically! ;) */
   _optimizeCode: function (code) {
-    var optimizedCode = '',
-      codeLength = code.length
+    let optimizedCode = ''
+    let codeLength = code.length
 
-    var i = 0
+    let i = 0
     while (i < codeLength) {
-      var ins = code[i],
-        c = 1
+      let ins = code[i]
+      let c = 1
 
       if (ins !== code[i + 1] || ['[', ']', '.', ','].indexOf(ins) !== -1) {
         if (ins === '[' && code[i + 1] === '-' && code[i + 2] === ']') {

@@ -1,18 +1,16 @@
 export function ASCII2Brainfuck(s) {
-  var stringLength = s.length,
-    output = '',
-    prevCharCode = 0,
-    cachedChars
+  let stringLength = s.length
+  let prevCharCode = 0
 
-  var [output, cachedChars] = cacheChars(s, stringLength)
+  let [output, cachedChars] = cacheChars(s, stringLength)
 
-  for (var i = 0; i < stringLength; i++) {
-    var charCode = s.charCodeAt(i),
-      nextChar1 = '',
-      nextChar2 = ''
+  for (let i = 0; i < stringLength; i++) {
+    let charCode = s.charCodeAt(i)
+    let nextChar1 = ''
+    let nextChar2 = ''
 
     if (charCode in cachedChars) {
-      var level = cachedChars[charCode]
+      let level = cachedChars[charCode]
 
       nextChar2 += mchar('<', level) + '.' + mchar('>', level)
     }
@@ -28,19 +26,19 @@ export function ASCII2Brainfuck(s) {
     }
   }
 
-  var clean = /(?:<>|><)/g // remove unnecessary pointer shifts
+  let clean = /(?:<>|><)/g // remove unnecessary pointer shifts
   while (output.match(clean)) output = output.replace(clean, '')
 
   return output.replace(/[^\.]+$/, '')
 }
 
 function cacheChars(s, stringLength) {
-  var charsToCache = mostUsedChars(s, stringLength),
-    output = '',
-    cache = {}
+  let charsToCache = mostUsedChars(s, stringLength)
+  let output = ''
+  let cache = {}
 
-  for (var i = charsToCache.length; i--; ) {
-    var charToCache = charsToCache[i]
+  for (let i = charsToCache.length; i--; ) {
+    let charToCache = charsToCache[i]
 
     cache[charToCache] = i + 1
     output += add(charToCache, 1) + '>'
@@ -50,20 +48,20 @@ function cacheChars(s, stringLength) {
 }
 
 function mostUsedChars(s, stringLength) {
-  var chars = {},
-    toCache = []
+  let chars = {}
+  let toCache = []
 
-  for (var i = 0; i < stringLength; i++) {
-    var charCode = s.charCodeAt(i)
+  for (let i = 0; i < stringLength; i++) {
+    let charCode = s.charCodeAt(i)
     chars[charCode] = (chars[charCode] >>> 0) + 1
   }
 
   // do not cache chars which are not used frequently
-  for (var charCount = chars.length; charCount--; ) {
+  for (let charCount = chars.length; charCount--; ) {
     if (chars[charCount] < 3) delete chars[charCount]
   }
 
-  for (var i = 20; i--; ) {
+  for (let i = 20; i--; ) {
     toCache.push(max(chars))
   }
 
@@ -71,9 +69,9 @@ function mostUsedChars(s, stringLength) {
 }
 
 function max(o) {
-  var h = 0,
-    i
-  for (i in o) {
+  let h = '0'
+
+  for (let i in o) {
     o[h] = o[h] >>> 0
     if (o[i] > o[h]) h = i
   }
@@ -86,24 +84,24 @@ function max(o) {
 function add(i, level) {
   if (!i) return ''
 
-  var l = Math.abs(i)
+  let l = Math.abs(i)
 
   if (l < 15) return mchar(i < 0 ? '-' : '+', l)
 
-  var f = getFactors(l),
-    fLength = f.length
+  let f = getFactors(l)
+  let fLength = f.length
 
   if (!fLength) return add(i - 1, level) + '+' // catch prime number
 
-  var v1 = ~~(fLength / 2),
-    v2 = fLength % 2 ? v1 : v1 - 1
+  let v1 = ~~(fLength / 2)
+  let v2 = fLength % 2 ? v1 : v1 - 1
 
   return valueByMultiply(f[v1], i < 0 ? -f[v2] : f[v2], level)
 }
 
 function valueByMultiply(a, b, level) {
-  var fSeek = mchar('>', level),
-    bSeek = mchar('<', level)
+  let fSeek = mchar('>', level)
+  let bSeek = mchar('<', level)
 
   return (
     fSeek +
@@ -119,14 +117,14 @@ function valueByMultiply(a, b, level) {
 }
 
 function mchar(c, i) {
-  var o = ''
+  let o = ''
   while (i--) o += c
   return o
 }
 
 function getFactors(v) {
-  var i = v,
-    f = []
+  let i = v
+  let f = []
 
   while (--i) if (!(v % i)) f.push(i)
 
