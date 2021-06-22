@@ -66,7 +66,7 @@ function cacheChars(s, stringLength) {
  */
 function mostUsedChars(s, stringLength) {
   /**
-   * @type {Record<string, number>}
+   * @type {Record<number, number>}
    */
   let chars = {}
   let toCache = []
@@ -77,7 +77,7 @@ function mostUsedChars(s, stringLength) {
   }
 
   // do not cache chars which are not used frequently
-  for (let charCount = chars.length; charCount--; ) {
+  for (let charCount in chars) {
     if (chars[charCount] < 3) delete chars[charCount]
   }
 
@@ -89,7 +89,7 @@ function mostUsedChars(s, stringLength) {
 }
 
 /**
- * @param {Record<string, number>} o
+ * @param {Record<number, number>} o
  * @returns {number}
  */
 function max(o) {
